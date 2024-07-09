@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+        var messages = document.getElementById('messages');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', { username: 'User', message: input.value });
+                input.value = '';
+            }
+        });
+
+        // Afficher un message
+        function addMessage(msg) {
+            var item = document.createElement('li');
+            item.textContent = msg.username + ': ' + msg.message;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        // Recevoir les messages initiaux
+        socket.on('init messages', function(msgs) {
+            msgs.forEach(addMessage);
+        });
+
+        // Recevoir les nouveaux messages
+        socket.on('chat message', function(msg) {
+            addMessage(msg);
+        });
+    </script>
+</body>
+</html>
